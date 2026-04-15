@@ -25,6 +25,7 @@ typedef enum _VTAPETYPE {
   VTAPE_TPC,
   VTAPE_FAKETAPE,
   VTAPE_XTAPE,
+  VTAPE_P7B,
 } VTAPE_TYPE;
 
 /* Virtual tape file control block. Contains all of the flags and file-related
