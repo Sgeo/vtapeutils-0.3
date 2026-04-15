@@ -21,6 +21,7 @@ See the file LICENSE in this distribution for license terms.
 #include "tpc.h"
 #include "faketape.h"
 #include "xtape.h"
+#include "p7b.h"
 
 int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
 {
@@ -32,6 +33,7 @@ int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
     case VTAPE_TPC: result=tpc_read(infile,buffer,maxlen); break;
     case VTAPE_FAKETAPE: result=faketape_read(infile,buffer,maxlen); break;
     case VTAPE_XTAPE: result=xtape_read(infile,buffer,maxlen); break;
+    case VTAPE_P7B: result=p7b_read(infile,buffer,maxlen); break;
   }
   return result;
 }
@@ -47,6 +49,7 @@ int vtape_write(VTAPE_FILE *outfile, unsigned char *buffer,
     case VTAPE_TPC: result=tpc_write(outfile,buffer,reclength); break;
     case VTAPE_FAKETAPE: result=faketape_write(outfile,buffer,reclength); break;
     case VTAPE_XTAPE: result=xtape_write(outfile,buffer,reclength); break;
+    case VTAPE_P7B: result=p7b_write(outfile,buffer,reclength); break;
   }
   return result;
 }
@@ -73,6 +76,8 @@ int vtape_open(VTAPE_FILE *file, char *filename, char *mode, VTAPE_TYPE vttype,
       file->type = VTAPE_XTAPE;
     } else if (strcasecmp(filename+fnamelen-6,".xtape") == 0) {
       file->type = VTAPE_XTAPE;
+    } else if(strcasecmp(filename+fnamelen-4,".bcd") == 0) {
+      file->type = VTAPE_P7B;
     } else {
       return -1;
     }
@@ -83,6 +88,7 @@ int vtape_open(VTAPE_FILE *file, char *filename, char *mode, VTAPE_TYPE vttype,
     case VTAPE_TPC: result=tpc_open(file,filename,mode); break;
     case VTAPE_FAKETAPE: result=faketape_open(file,filename,mode); break;
     case VTAPE_XTAPE: result=xtape_open(file,filename,mode); break;
+    case VTAPE_P7B: result=p7b_open(file,filename,mode); break;
   }
   file->maxchunk = maxchunk;
   file->prev_block_len = 0;
@@ -100,6 +106,7 @@ int vtape_close(VTAPE_FILE *file)
     case VTAPE_TPC: result=tpc_close(file); break;
     case VTAPE_FAKETAPE: result=faketape_close(file); break;
     case VTAPE_XTAPE: result=xtape_close(file); break;
+    case VTAPE_P7B: result=p7b_close(file); break;
   }
   return result;
 }

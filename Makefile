@@ -5,12 +5,12 @@
 
 VERSION=0.3
 SOURCES=awstape.c ebcdic.c faketape.c stdlabel.c tap.c tpc.c vtape.c \
-	vtapelist.c vtapecp.c xtape.c\
+	vtapelist.c vtapecp.c xtape.c p7b.c\
 	Makefile LICENSE 
 HEADERS=awstape.h ebcdic.h faketape.h stdlabel.h tap.h tpc.h vtape.h \
-	xtape.h
+	xtape.h p7b.h
 LIBOBJECTS=awstape.o ebcdic.o faketape.o stdlabel.o tap.o tpc.o vtape.o \
-	xtape.o
+	xtape.o p7b.o
 OBJECTS=vtapelist.o vtapecp.o
 PROGRAMS=vtapelist vtapecp
 CCOPTS=-g
@@ -52,6 +52,9 @@ tpc.o: tpc.h tpc.c
 
 xtape.o: xtape.h xtape.c
 	cc $(CCOPTS) -c xtape.c
+
+p7b.o: p7b.h p7b.c
+	cc $(CCOPTS) -c p7b.c
 
 clean:
 	rm $(OBJECTS) $(LIBOBJECTS) $(PROGRAMS)
