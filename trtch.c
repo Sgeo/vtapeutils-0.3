@@ -1,4 +1,5 @@
 // BCD <-> EBCDIC conversions based on https://bitsavers.org/pdf/ibm/2400/GA22-6866-5_2400-Series_CompDescr_Jul71.pdf
+// https://bitsavers.org/pdf/ibm/2415/Y22-2918-0_2415_Models_1-3_Tape_Control_FETO_1966.pdf for substitute blank behavior
 
 // cc == collating code
 
@@ -42,7 +43,7 @@ void trtch_init(void) {
 
 char bcd_to_ebcdic(char bcd, PARITY parity) {
     if((parity == PARITY_EVEN) && (bcd == 020)) {
-        return cc_to_ebcdic[0];
+        return 0x40;
     }
     return bcd_to_ebcdic_table[bcd];
 }
