@@ -37,7 +37,6 @@ void trtch_init(void) {
         unsigned char bcd = cc_to_bcd[i];
         bcd_to_ebcdic_table[bcd] = ebcdic;
         ebcdic_to_bcd_table[ebcdic] = bcd;
-        printf("cc: %i\tbcd: %o\tebcdic: %X\n", i, bcd, ebcdic);
     }
 }
 
