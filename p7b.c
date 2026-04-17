@@ -51,7 +51,7 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
     current_char &= ~P7B_START;
     current_char &= ~P7B_PARITY; // Possibly controversial, but the 9-track containers don't store parity.
 
-    if((current_char&P7B_TAPE_MARK)==P7B_TAPE_MARK)
+    if(current_char==P7B_TAPE_MARK)
     {
         // Special tapemark reading mode. The spec allows for a second redundant tapemark character
         tapemark = 1;
