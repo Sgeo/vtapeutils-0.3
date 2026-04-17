@@ -10,6 +10,15 @@
 #include "vtape.h"
 #include "p7b.h"
 
+int fgetc_skip_null(FILE* stream)
+{
+  int result = 0;
+  do {
+    result = fgetc(stream);
+  } while(result == 0x00);
+  return result;
+}
+
 int p7b_open(VTAPE_FILE *file, char *filename, char *mode)
 {
   if ((file->file = fopen(filename,mode)) == NULL) return -1;
@@ -25,56 +34,45 @@ int p7b_close(VTAPE_FILE *file)
 int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
 {
     size_t position = 0;
-    char current;
-    if(fread(&current, 1, 1, infile->file) < 1) {
+    int current_int;
+    char current_char;
+    int tapemark = 0;
+    
+    current_int = fgetc_skip_null(infile->file);
+    if(current_int < 0) return -1;
+
+    current_char = current_int;
+
+    if(!(current_char&P7B_START))
+    {
+        printf("Non-START at beginning of file!\n");
         return -1;
     }
-    if(!(current & P7B_START)) {
-        printf("P7B Error: Record doesn't start with start record mark.\n");
-        return -1;
-    }
-    current &= ~P7B_START;
-    //current &= ~P7B_PARITY; // TODO: Check parity?
+    current_char &= ~P7B_START;
+    current_char &= ~P7B_PARITY; // Possibly controversial, but the 9-track containers don't store parity.
 
-    if((current&~P7B_PARITY) == P7B_TAPE_MARK) {
-        while((current&~P7B_PARITY) == P7B_TAPE_MARK) {
-            if(fread(&current, 1, 1, infile->file) < 1) {
-                if(feof(infile->file)) {
-                    // Consider EOF after tape mark to be valid
-                    return 0;
-                } else {
-                    return -1;
-                }
-            }
-        }
-        // Back up 1 since we presumably overshot
-        if(fseek(infile->file, -1, SEEK_CUR)!=0) {
-            return -1;
-        }
-        return 0;
+    if((current_char&P7B_TAPE_MARK)==P7B_TAPE_MARK)
+    {
+        // Special tapemark reading mode. The spec allows for a second redundant tapemark character
+        tapemark = 1;
     }
 
-    buffer[position++] = current;
-
-    while(1) {
-        if(position >= maxlen) {
-            printf("Record too long!\n");
-            return -1;
+    while(!(current_char&P7B_START))
+    {
+        if(!tapemark)
+        {
+            buffer[position++] = current_char;
         }
-        position++;
-        if(fread(&current, 1, 1, infile->file) < 1) {
-            return -1;
-        }
-        //current &= ~P7B_PARITY;
-        if(current & P7B_START) {
-            if(fseek(infile->file, -1, SEEK_CUR)!=0) {
-                return -1;
-            }
-            position--;
-            return position;
-        }
-        buffer[position] = current;
+        current_int = fgetc_skip_null(infile->file);
+        if(current_int < 0) return position;
+        current_char = current_int;
     }
+    // current_int and current_char should be a start
+    if(ungetc(current_int, infile->file)==EOF) return -1;
+
+    // position in this point is how many bytes read
+
+    return position;
 
     
 
