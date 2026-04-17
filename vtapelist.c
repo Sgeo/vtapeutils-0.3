@@ -18,6 +18,7 @@ See the file LICENSE in this distribution for license terms.
 #include <errno.h>
 #include "vtape.h"
 #include "stdlabel.h"
+#include "trtch.h"
 
 #define MAXREC 65535
 
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
   stdlabel = FALSE;
   
   while (1) {
-    reclen = vtape_read(&tape, buffer, MAXREC);
+    reclen = vtape_read(&tape, buffer, MAXREC, DATA_FEATURE_NONE);
     if (reclen < 0) {
       if (vtape_eof(&tape)) break;
       printf("Error reading tape file: %s\n", strerror(ferror(tape.file)));

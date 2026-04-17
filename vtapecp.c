@@ -17,6 +17,7 @@ See the file LICENSE in this distribution for license terms.
 #include <string.h>
 #include <errno.h>
 #include "vtape.h"
+#include "trtch.h"
 
 #define MAXREC 65535
 
@@ -26,9 +27,10 @@ int main(int argc, char *argv[])
   int totalblkcnt, filecnt, reclen;
   VTAPE_FILE intape, outtape;
   unsigned char buffer[MAXREC];
+  DATA_FEATURE data_feature = DATA_FEATURE_NONE;
   
-  if (argc != 3) {
-    printf("Usage: %s <inputtape> <outputtape>\n",argv[0]);
+  if ((argc != 3) && (argc != 4)) {
+    printf("Usage: %s <inputtape> <outputtape> [--translate]\n",argv[0]);
     exit(1);
   }
 
@@ -43,17 +45,24 @@ int main(int argc, char *argv[])
             strerror(errno));
     exit(1);
   }
+
+  for(int i = 1; i < argc; i++) {
+    if(strcmp(argv[i], "--translate") == 0) {
+      data_feature = DATA_FEATURE_TRANSLATE;
+    }
+  }
+
   totalblkcnt = 0;
   filecnt = 1;
   
   while (1) {
-    reclen = vtape_read(&intape, buffer, MAXREC);
+    reclen = vtape_read(&intape, buffer, MAXREC, data_feature);
     if (reclen < 0) {
       if (vtape_eof(&intape)) break;
       printf("Error reading input tape file: %s\n", strerror(errno));
       exit(1);
     }
-    if (vtape_write(&outtape, buffer, reclen) < reclen) {
+    if (vtape_write(&outtape, buffer, reclen, data_feature) < reclen) {
       printf("Error writing output tape file: %s\n", strerror(errno));
       exit(1);
     }

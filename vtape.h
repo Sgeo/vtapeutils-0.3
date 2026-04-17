@@ -15,6 +15,8 @@ FakeTape is a trademark of Fundamental Software, Inc.
 See the file LICENSE in this distribution for license terms.
 */
 
+#include "trtch.h"
+
 /* Virtual tape file types. To add a new file type, add a new entry to the end
     of this list, then add open/close/read/write calls to the library and
     call them from vtape_open/close/read/write. */
@@ -51,9 +53,9 @@ typedef struct _VTAPE_FILE {
 #endif
 
 /* Function prototypes. */
-int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen);
+int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, DATA_FEATURE data_feature);
 int vtape_write(VTAPE_FILE *outfile, unsigned char *buffer,
-                unsigned int reclength);
+                unsigned int reclength, DATA_FEATURE data_feature);
 int vtape_open(VTAPE_FILE *file, char *filename, char *mode, VTAPE_TYPE vttype,
                 unsigned int maxchunk, int padodd);
 int vtape_close(VTAPE_FILE *file);

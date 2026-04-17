@@ -1,10 +1,22 @@
+#ifndef _TRTCH_H
+#define _TRTCH_H
+
 typedef enum _PARITY {
     PARITY_UNKNOWN = 0,
     PARITY_ODD = 1,
     PARITY_EVEN = 2
 } PARITY;
 
+typedef enum _DATA_FEATURE {
+    DATA_FEATURE_NONE,
+    DATA_FEATURE_CONVERT,
+    DATA_FEATURE_TRANSLATE
+} DATA_FEATURE;
+
 char bcd_to_ebcdic(char, PARITY);
 char ebcdic_to_bcd(char, PARITY);
 
 void trtch_init(void);
+
+
+#endif

@@ -22,8 +22,9 @@ See the file LICENSE in this distribution for license terms.
 #include "faketape.h"
 #include "xtape.h"
 #include "p7b.h"
+#include "trtch.h"
 
-int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
+int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, DATA_FEATURE data_feature)
 {
   int result;
 
@@ -33,13 +34,13 @@ int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
     case VTAPE_TPC: result=tpc_read(infile,buffer,maxlen); break;
     case VTAPE_FAKETAPE: result=faketape_read(infile,buffer,maxlen); break;
     case VTAPE_XTAPE: result=xtape_read(infile,buffer,maxlen); break;
-    case VTAPE_P7B: result=p7b_read(infile,buffer,maxlen); break;
+    case VTAPE_P7B: result=p7b_read(infile,buffer,maxlen,data_feature); break;
   }
   return result;
 }
 
 int vtape_write(VTAPE_FILE *outfile, unsigned char *buffer,
-                unsigned int reclength)
+                unsigned int reclength, DATA_FEATURE data_feature)
 {
   int result;
 
@@ -49,7 +50,7 @@ int vtape_write(VTAPE_FILE *outfile, unsigned char *buffer,
     case VTAPE_TPC: result=tpc_write(outfile,buffer,reclength); break;
     case VTAPE_FAKETAPE: result=faketape_write(outfile,buffer,reclength); break;
     case VTAPE_XTAPE: result=xtape_write(outfile,buffer,reclength); break;
-    case VTAPE_P7B: result=p7b_write(outfile,buffer,reclength); break;
+    case VTAPE_P7B: result=p7b_write(outfile,buffer,reclength,data_feature); break;
   }
   return result;
 }
