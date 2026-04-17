@@ -59,6 +59,7 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
 
     while(!(current_char&P7B_START))
     {
+        current_char &= ~P7B_PARITY;
         if(!tapemark)
         {
             buffer[position++] = current_char;
