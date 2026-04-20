@@ -68,6 +68,9 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, DAT
         }
         if(!tapemark)
         {
+            if(position >= maxlen) {
+              return -1;
+            }
             buffer[position++] = current_char;
         }
         current_int = fgetc_skip_null(infile->file);
