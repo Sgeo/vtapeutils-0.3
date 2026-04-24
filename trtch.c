@@ -5,6 +5,7 @@
 
 #include "trtch.h"
 #include <stdio.h>
+#include <string.h>
 
 unsigned char cc_to_ebcdic[64] = {
     0x40, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50, 0x5B,
@@ -32,6 +33,7 @@ unsigned char bcd_to_ebcdic_table[64] = { 0 };
 unsigned char ebcdic_to_bcd_table[256] = { 0 };
 
 void trtch_init(void) {
+    memset(ebcdic_to_bcd_table, 0xFF, 256); // Non-existent BCD value so we can tell when an EBCDIC char has no translation
     for(int i = 0; i < 64; i++) {
         unsigned char ebcdic = cc_to_ebcdic[i];
         unsigned char bcd = cc_to_bcd[i];
@@ -41,8 +43,19 @@ void trtch_init(void) {
 }
 
 char bcd_to_ebcdic(char bcd, PARITY parity) {
+    // <!> UNDEFINED BEHAVIOR IF bcd > 63 <!>
     if((parity == PARITY_EVEN) && (bcd == 020)) {
         return 0x40;
     }
     return bcd_to_ebcdic_table[bcd];
+}
+
+int bcd_to_ebcdic_buffer(char *buffer, size_t bufferlen, PARITY parity) {
+    for(int i = 0; i < bufferlen; i++) {
+        if(buffer[i] > 63) {
+            return -1;
+        }
+        buffer[i] = bcd_to_ebcdic(buffer[i], parity);
+    }
+    return 0;
 }

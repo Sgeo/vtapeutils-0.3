@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   stdlabel = FALSE;
   
   while (1) {
-    reclen = vtape_read(&tape, buffer, MAXREC, DATA_FEATURE_NONE);
+    reclen = vtape_read(&tape, buffer, MAXREC);
     if (reclen < 0) {
       if (vtape_eof(&tape)) break;
       printf("Error reading tape file: %s\n", strerror(ferror(tape.file)));

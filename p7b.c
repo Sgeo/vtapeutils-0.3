@@ -9,7 +9,6 @@
 #include <string.h>
 #include "vtape.h"
 #include "p7b.h"
-#include "trtch.h"
 
 int fgetc_skip_null(FILE* stream)
 {
@@ -22,7 +21,6 @@ int fgetc_skip_null(FILE* stream)
 
 int p7b_open(VTAPE_FILE *file, char *filename, char *mode)
 {
-  trtch_init();
   if ((file->file = fopen(filename,mode)) == NULL) return -1;
   return 0;
 }
@@ -33,7 +31,7 @@ int p7b_close(VTAPE_FILE *file)
   return 0;
 }
 
-int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, DATA_FEATURE data_feature)
+int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
 {
     size_t position = 0;
     int current_int;
@@ -62,10 +60,6 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, DAT
     while(!(current_char&P7B_START))
     {
         current_char &= ~P7B_PARITY;
-        if(data_feature == DATA_FEATURE_TRANSLATE)
-        {
-          current_char = bcd_to_ebcdic(current_char, PARITY_EVEN);
-        }
         if(!tapemark)
         {
             if(position >= maxlen) {
@@ -88,7 +82,7 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, DAT
 
 }
 
-int p7b_write(VTAPE_FILE *outfile, unsigned char *buffer, unsigned int reclength, DATA_FEATURE data_feature)
+int p7b_write(VTAPE_FILE *outfile, unsigned char *buffer, unsigned int reclength)
 {
     printf("Writing P7B is unsupported and probably unsupportable.\n");
     return -1;

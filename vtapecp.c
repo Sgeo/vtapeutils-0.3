@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   for(int i = 1; i < argc; i++) {
     if(strcmp(argv[i], "--translate") == 0) {
       data_feature = DATA_FEATURE_TRANSLATE;
+      trtch_init();
     }
   }
 
@@ -56,13 +57,18 @@ int main(int argc, char *argv[])
   filecnt = 1;
   
   while (1) {
-    reclen = vtape_read(&intape, buffer, MAXREC, data_feature);
+    reclen = vtape_read(&intape, buffer, MAXREC);
     if (reclen < 0) {
       if (vtape_eof(&intape)) break;
       printf("Error reading input tape file: %s\n", strerror(errno));
       exit(1);
     }
-    if (vtape_write(&outtape, buffer, reclen, data_feature) < reclen) {
+    if(data_feature == DATA_FEATURE_TRANSLATE) {
+      if(bcd_to_ebcdic_buffer(buffer, reclen, PARITY_EVEN) != 0) {
+        printf("Error translating 6-bit to 8-bit\n");
+      }
+    }
+    if (vtape_write(&outtape, buffer, reclen) < reclen) {
       printf("Error writing output tape file: %s\n", strerror(errno));
       exit(1);
     }
