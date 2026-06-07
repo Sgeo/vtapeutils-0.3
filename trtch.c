@@ -29,6 +29,19 @@ unsigned char cc_to_bcd[64] = {
     002, 003, 004, 005, 006, 007, 010, 011
 };
 
+// 1 = odd parity, 2 = even parity
+unsigned char parity_chart[64] = {
+    // 0, 1, 2, 3, 4, 5, 6, 7
+       2, 1, 1, 2, 1, 2, 2, 1,
+       1, 2, 2, 1, 2, 1, 1, 2,
+       1, 2, 2, 1, 2, 1, 1, 2,
+       2, 1, 1, 2, 1, 2, 2, 1,
+       1, 2, 2, 1, 2, 1, 1, 2,
+       2, 1, 1, 2, 1, 2, 2, 1,
+       2, 1, 1, 2, 1, 2, 2, 1,
+       1, 2, 2, 1, 2, 1, 1, 2
+};
+
 unsigned char bcd_to_ebcdic_table[64] = { 0 };
 unsigned char ebcdic_to_bcd_table[256] = { 0 };
 
@@ -58,4 +71,15 @@ int bcd_to_ebcdic_buffer(char *buffer, size_t bufferlen, PARITY parity) {
         buffer[i] = bcd_to_ebcdic(buffer[i], parity);
     }
     return 0;
+}
+
+unsigned char parity_of_byte(unsigned char byte) {
+    unsigned char body_parity = parity_chart[byte & 0x3F];
+    unsigned char parity_bit = (byte>>6) & 1;
+    if(parity_bit) {
+        return 3 - body_parity;
+    } else {
+        return body_parity;
+    }
+
 }

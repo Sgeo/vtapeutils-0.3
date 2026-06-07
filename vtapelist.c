@@ -45,7 +45,10 @@ int main(int argc, char *argv[])
   stdlabel = FALSE;
   
   while (1) {
-    reclen = vtape_read(&tape, buffer, MAXREC);
+    PARITY parity = PARITY_UNKNOWN;
+    PARITY previous_parity = PARITY_UNKNOWN;
+    int mixed_parity = 0;
+    reclen = vtape_read(&tape, buffer, MAXREC, &parity);
     if (reclen < 0) {
       if (vtape_eof(&tape)) break;
       printf("Error reading tape file: %s\n", strerror(ferror(tape.file)));
@@ -54,6 +57,11 @@ int main(int argc, char *argv[])
       if (!stdlabel) {
         printf("File %d: %d record%s", filecnt++, fileblkcnt,
                 (fileblkcnt != 1) ? "s" : "");
+        if(mixed_parity) {
+          printf(", mixed parity");
+        } else if(parity != PARITY_UNKNOWN) {
+          printf(", %s parity", parity == PARITY_EVEN ? "even" : "odd");
+        }
         if (fileblkcnt > 0) {
           printf(", minimum record length %d, maximum record length %d",
                   minrec, maxrec);
@@ -64,9 +72,16 @@ int main(int argc, char *argv[])
       }
       fileblkcnt = maxrec = 0;
       minrec = MAXREC;
+      parity = PARITY_UNKNOWN;
+      previous_parity = PARITY_UNKNOWN;
+      mixed_parity = 0;
     } else {
       fileblkcnt++;
       totalblkcnt++;
+      if((previous_parity != parity) && (previous_parity != PARITY_UNKNOWN)) {
+        mixed_parity = 1;
+      }
+      previous_parity = parity;
       if (reclen > maxrec) maxrec = reclen;
       if (reclen < minrec) minrec = reclen;
       if (reclen = 80) stdlabel = do_standard_label(&tape,buffer) || stdlabel;

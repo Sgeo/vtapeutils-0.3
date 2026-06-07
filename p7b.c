@@ -9,6 +9,7 @@
 #include <string.h>
 #include "vtape.h"
 #include "p7b.h"
+#include "trtch.h"
 
 int fgetc_skip_null(FILE* stream)
 {
@@ -31,11 +32,12 @@ int p7b_close(VTAPE_FILE *file)
   return 0;
 }
 
-int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
+int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, PARITY *parity)
 {
     size_t position = 0;
     int current_int;
     char current_char;
+    unsigned char block_parity = 0;
     int tapemark = 0;
     
     current_int = fgetc_skip_null(infile->file);
@@ -49,9 +51,12 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
         return -1;
     }
     current_char &= ~P7B_START;
-    current_char &= ~P7B_PARITY; // Possibly controversial, but the 9-track containers don't store parity.
+    block_parity = parity_of_byte(current_char);
+    if(parity != NULL) {
+      *parity = (block_parity == 1) ? PARITY_ODD : (block_parity == 2) ? PARITY_EVEN : PARITY_UNKNOWN;
+    }
 
-    if(current_char==P7B_TAPE_MARK)
+    if((current_char&~P7B_PARITY)==P7B_TAPE_MARK)
     {
         // Special tapemark reading mode. The spec allows for a second redundant tapemark character
         tapemark = 1;
@@ -59,6 +64,9 @@ int p7b_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen)
 
     while(!(current_char&P7B_START))
     {
+        if(block_parity != parity_of_byte(current_char)) {
+          printf("Inconsistent parity detected in record!\n");
+        }
         current_char &= ~P7B_PARITY;
         if(!tapemark)
         {

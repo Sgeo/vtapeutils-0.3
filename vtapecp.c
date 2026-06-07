@@ -55,16 +55,17 @@ int main(int argc, char *argv[])
 
   totalblkcnt = 0;
   filecnt = 1;
+  PARITY parity = PARITY_UNKNOWN;
   
   while (1) {
-    reclen = vtape_read(&intape, buffer, MAXREC);
+    reclen = vtape_read(&intape, buffer, MAXREC, &parity);
     if (reclen < 0) {
       if (vtape_eof(&intape)) break;
       printf("Error reading input tape file: %s\n", strerror(errno));
       exit(1);
     }
     if(data_feature == DATA_FEATURE_TRANSLATE) {
-      if(bcd_to_ebcdic_buffer(buffer, reclen, PARITY_EVEN) != 0) {
+      if(bcd_to_ebcdic_buffer(buffer, reclen, parity) != 0) {
         printf("Error translating 6-bit to 8-bit\n");
       }
     }

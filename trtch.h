@@ -22,5 +22,7 @@ int bcd_to_ebcdic_buffer(char *buffer, size_t bufferlen, PARITY parity);
 
 void trtch_init(void);
 
+unsigned char parity_of_byte(unsigned char byte);
+
 
 #endif

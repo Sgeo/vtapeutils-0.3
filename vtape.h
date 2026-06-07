@@ -53,7 +53,7 @@ typedef struct _VTAPE_FILE {
 #endif
 
 /* Function prototypes. */
-int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen);
+int vtape_read(VTAPE_FILE *infile, unsigned char *buffer, unsigned int maxlen, PARITY *parity);
 int vtape_write(VTAPE_FILE *outfile, unsigned char *buffer,
                 unsigned int reclength);
 int vtape_open(VTAPE_FILE *file, char *filename, char *mode, VTAPE_TYPE vttype,
